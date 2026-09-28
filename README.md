@@ -31,6 +31,7 @@ python3 -m http.server 8000
 - Live HUD: speed, lap, position, race time + minimap
 - Countdown start lights, wrong-way warning, pause, and results screen
 - Car-to-car collision
+- HD rendering: HiDPI canvas, pre-rendered track detail (textured grass, segmented curbs, asphalt grain), gradient-shaded cars with soft shadows, skid marks, drift smoke, glowing brake lights, collision sparks, and a cinematic vignette
 
 ## Files
 
