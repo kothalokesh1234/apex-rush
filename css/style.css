@@ -1,7 +1,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #0b0e14;
+  background: radial-gradient(1200px 700px at 50% -10%, #141b2a 0%, #0b0e14 60%);
   color: #e8ecf4;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   min-height: 100vh;
@@ -44,7 +44,7 @@ canvas { display: block; width: 100%; height: auto; background: #17351f; }
 #overlay.show { opacity: 1; pointer-events: auto; }
 
 .panel { text-align: center; padding: 34px 48px; }
-.panel h1 { font-size: 52px; letter-spacing: 6px; }
+.panel h1 { font-size: 52px; letter-spacing: 6px; text-shadow: 0 4px 34px rgba(255,61,90,.35); }
 .panel h1 span { color: #ff3d5a; }
 .tag { color: #9aa3b8; margin: 8px 0 20px; letter-spacing: 1px; }
 
