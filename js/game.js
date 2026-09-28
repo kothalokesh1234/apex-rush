@@ -274,6 +274,7 @@ addEventListener("keydown", e => {
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(e.key.toLowerCase())) e.preventDefault();
   if (e.key.toLowerCase() === "r") resetPlayer();
   if (e.key.toLowerCase() === "p" && state === "racing") togglePause();
+  if (e.key.toLowerCase() === "c" && (state === "racing" || state === "paused")) cycleCamera();
   if (e.key === "Enter" && state === "menu") startRace();
 });
 addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
@@ -515,7 +516,7 @@ function onPlayerFinish() {
         <div class="controls">
           <div><kbd>&uarr;</kbd><kbd>&darr;</kbd> throttle / brake</div>
           <div><kbd>&larr;</kbd><kbd>&rarr;</kbd> steer</div>
-          <div><kbd>R</kbd> reset &nbsp;&nbsp; <kbd>P</kbd> pause</div>
+          <div><kbd>R</kbd> reset &nbsp;&nbsp; <kbd>P</kbd> pause &nbsp;&nbsp; <kbd>C</kbd> camera</div>
         </div>
         <button id="startBtn">Start Race</button>
       </div>`;
@@ -702,15 +703,37 @@ vig.width = W; vig.height = H;
 })();
 
 let camX = 0, camY = 0;
+
+/* ---------------- Camera angles (switchable mid-race) ---------------- */
+const CAMS = [
+  { name: "Top", zoom: 1, rotate: false },
+  { name: "Chase", zoom: 1.35, rotate: true },
+  { name: "Far", zoom: 0.62, rotate: false },
+];
+let camMode = 0;
+function cycleCamera() {
+  camMode = (camMode + 1) % CAMS.length;
+  toast("Camera: " + CAMS[camMode].name, 1200);
+  beep(520 + camMode * 140, 0.09);
+}
+
 function render() {
+  const cam = CAMS[camMode];
   // camera follows player
   const tx = Math.max(minX + W / 2, Math.min(maxX - W / 2, player.x));
   const ty = Math.max(minY + H / 2, Math.min(maxY - H / 2, player.y));
   camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12;
 
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  // grass backdrop so rotated/zoomed views never show the void
+  ctx.fillStyle = "#173f20";
+  ctx.fillRect(0, 0, W, H);
+
   ctx.save();
-  ctx.translate(W / 2 - camX, H / 2 - camY);
+  ctx.translate(W / 2, H / 2);
+  ctx.scale(cam.zoom, cam.zoom);
+  if (cam.rotate) ctx.rotate(-player.angle - Math.PI / 2); // heading-up chase view
+  ctx.translate(-camX, -camY);
 
   ctx.drawImage(trackLayer, minX, minY, worldW, worldH);
   ctx.drawImage(skidLayer, minX, minY, worldW, worldH);
@@ -804,3 +827,14 @@ function frame(now) {
 placeOnGrid();
 camX = player.x; camY = player.y;
 requestAnimationFrame(frame);
+
+/* debug/test hooks */
+globalThis.__apex = {
+  start: startRace,
+  frame,
+  render,
+  cycleCamera,
+  get camMode() { return camMode; },
+  get camName() { return CAMS[camMode].name; },
+  cars,
+};
